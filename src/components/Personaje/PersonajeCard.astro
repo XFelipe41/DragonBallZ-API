@@ -1,0 +1,54 @@
+---
+interface Props {
+  image: string;
+  name: string;
+  id: number;
+  ki: string;
+  maxKi: string;
+  race: string;
+  description: string;
+  isBig?: boolean;
+}
+
+const {
+  name,
+  image,
+  id,
+  race,
+  maxKi,
+  ki,
+  description,
+  isBig = false,
+} = Astro.props;
+const imageSrc = image;
+---
+
+<a
+  href={`/Personajes/${name}`}
+  class:list={[
+    `rounded flex flex-col justify-center items-center p-2`,
+    {
+      border: !isBig,
+    },
+  ]}
+>
+  <img
+    transition:name={`${name}-image`}
+    class:list={[
+      {
+        "w-30 h-80": isBig,
+        "w-26 h-32": !isBig,
+      },
+    ]}
+    src={imageSrc}
+    alt={name}
+  />
+  <span
+    class:list={[
+      "capitalize",
+      {
+        "text-5xl": isBig,
+      },
+    ]}>{name}</span
+  >
+</a>

@@ -1,16 +1,27 @@
 ---
+import Title from "@/components/shared/Title.astro";
+import PersonajeCard from "../components/Personaje/PersonajeCard.astro";
+import type { DbzListResponse } from "../Interfaces/dbz-list.response";
+import MainLayout from "../layouts/MainLayout.astro";
 
+// Hacer la petición a la API de DBZ
+const resp = await fetch("https://dragonball-api.com/api/characters");
+const data = (await resp.json()) as DbzListResponse;
+
+const title = "DBZ Static | Home";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<MainLayout title={title}>
+  <Title>Listado de Personajes de DBZ</Title>
+
+  <section
+    aria-label="Listado DBZ"
+    class="grid grid-cols-1 sm:grid-cols-4 md:grid-cols-5 gap-4 mt-5"
+  >
+    {
+      data.items.map(({ name, image, id }) => (
+        <PersonajeCard name={name} image={image} id={id} />
+      ))
+    }
+  </section>
+</MainLayout>

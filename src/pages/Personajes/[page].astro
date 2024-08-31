@@ -1,0 +1,70 @@
+---
+import type { GetStaticPaths } from "astro";
+import PersonajeCard from "@/components/Personaje/PersonajeCard.astro";
+import type { DbzListResponse } from "../../Interfaces/dbz-list.response";
+import MainLayout from "../../layouts/MainLayout.astro";
+import Title from "@/components/shared/Title.astro";
+
+// Hacer la petición a la API de DBZ
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const resp = await fetch(
+    "https://dragonball-api.com/api/characters?limit=78"
+  );
+  const { items } = (await resp.json()) as DbzListResponse;
+
+  return paginate(items, { pageSize: 10 });
+}) satisfies GetStaticPaths;
+
+const title = "DBZ Static | Home";
+const { page } = Astro.props;
+---
+
+<MainLayout title={title}>
+  <Title>Listado de Personajes</Title>
+
+  <section
+    aria-label="Listado DBZ"
+    class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 mt-5"
+  >
+    {
+      page.data.map(({ name, image, id }) => (
+        <PersonajeCard name={name} image={image} id={id} />
+      ))
+    }
+  </section>
+
+  <section class="flex mt-10 gap-2 items-center">
+    <a
+      class:list={[
+        "btn",
+        {
+          disabled: !page.url.prev,
+        },
+      ]}
+      href={page.url.prev}>Anteriores</a
+    >
+
+    <a
+      class:list={[
+        "btn",
+        {
+          disabled: !page.url.next,
+        },
+      ]}
+      href={page.url.next}>Siguientes</a
+    >
+    <div class="flex flex-1"></div>
+    <span class="text-xl font-bold"> Página {page.currentPage}</span>
+  </section>
+
+  <style>
+    .btn {
+      @apply bg-blue-500 p-2 text-white rounded-md;
+    }
+
+    .disabled {
+      @apply bg-gray-600 text-gray-400;
+    }
+  </style>
+</MainLayout>

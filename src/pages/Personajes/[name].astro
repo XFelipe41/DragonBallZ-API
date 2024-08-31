@@ -1,0 +1,128 @@
+---
+import type { GetStaticPaths } from "astro";
+import type { DbzListResponse } from "../../Interfaces/dbz-list.response";
+import { Icon } from "astro-icon/components";
+import MainLayout from "../../layouts/MainLayout.astro";
+import PersonajeCard from "../../components/Personaje/PersonajeCard.astro";
+import Title from "@/components/shared/Title.astro";
+
+export const getStaticPaths = (async () => {
+  const resp = await fetch(
+    "https://dragonball-api.com/api/characters?limit=78"
+  );
+
+  const { items } = (await resp.json()) as DbzListResponse;
+
+  return items.map(({ name, image, race, id, ki, maxKi, description }) => ({
+    params: { name: name },
+    props: {
+      name: name,
+      image: image,
+      id: id,
+      race: race,
+      ki: ki,
+      maxKi: maxKi,
+      description: description,
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+const { name, image, id, race, ki, maxKi, description } = Astro.props;
+const imageSrc = image;
+---
+
+<MainLayout
+  title={`Personaje - #${id} ${name}`}
+  description={`${description}`}
+  image={imageSrc}
+>
+  <section class="mt-10 mx-10 flex flex-col justify-center items-center">
+    <div class="flex flex-row">
+      <div>
+        <button onclick="history.back()" class="text-blue-500">Regresar</button>
+        <Title>{name} #{id}</Title>
+      </div>
+      <button id="btn-favorite" class="ml-4" data-name={name} data-id={id}>
+        <Icon data-outline name="heart-outline" size={50} />
+        <Icon data-full class="hidden" name="heart-full" size={50} />
+      </button>
+    </div>
+
+    <PersonajeCard
+      name={name}
+      image={image}
+      race={race}
+      ki={ki}
+      maxKi={maxKi}
+      description={description}
+      isBig={true}
+    />
+  </section>
+</MainLayout>
+
+<script>
+  // interface FavoritePersonaje {
+  //   name: string;
+  //   id: number;
+  // }
+
+  import type { FavoritePersonaje } from "src/Interfaces/favorite-personaje";
+
+  const handlePageLoad = () => {
+    let favoritePesonajes: FavoritePersonaje[] = JSON.parse(
+      localStorage.getItem("favorites") ?? "[]"
+    );
+    const btnFavorite = document.querySelector(
+      "#btn-favorite"
+    ) as HTMLButtonElement;
+
+    if (!btnFavorite) return;
+
+    const name = btnFavorite.dataset.name ?? "";
+    const id = btnFavorite.dataset.id ?? "";
+    const isFavorite = favoritePesonajes.some((fav) => fav.name === name);
+
+    const heartOuline = btnFavorite.querySelector(
+      "[data-outline]"
+    ) as HTMLElement;
+    const heartFull = btnFavorite.querySelector("[data-full]") as HTMLElement;
+
+    // funcion para hacer favoritos los elementos
+    if (isFavorite) {
+      heartOuline.classList.add("hidden");
+      heartFull.classList.remove("hidden");
+    }
+
+    const toggleFavorite = () => {
+      const isFavorite = favoritePesonajes.some((fav) => fav.name === name);
+      if (isFavorite) {
+        favoritePesonajes = favoritePesonajes.filter(
+          (fav) => fav.name !== name
+        );
+      } else {
+        favoritePesonajes.push({ id: +id, name: name });
+      }
+
+      localStorage.setItem("favorites", JSON.stringify(favoritePesonajes));
+    };
+
+    btnFavorite.addEventListener("click", () => {
+      heartOuline.classList.toggle("hidden");
+      heartFull.classList.toggle("hidden");
+
+      toggleFavorite();
+    });
+  };
+
+  document.addEventListener("astro:page-load", handlePageLoad);
+</script>
+
+<style>
+  a {
+    @apply hover:underline text-blue-500;
+  }
+
+  #btn-favorite {
+    @apply hover:animate-pulse;
+  }
+</style>

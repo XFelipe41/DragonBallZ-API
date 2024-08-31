@@ -1,0 +1,11 @@
+---
+import { FavoritePersonajes } from "@/components/Personaje/FavoritePersonajes";
+import Title from "@/components/shared/Title.astro";
+import MainLayout from "@/layouts/MainLayout.astro";
+---
+
+<MainLayout title="Favoritos">
+  <Title>Tus Personajes Favoritos</Title>
+
+  <FavoritePersonajes client:only="solid-js" />
+</MainLayout>

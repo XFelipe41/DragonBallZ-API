@@ -23,7 +23,13 @@ export const FevoritePersonajeCard: Component<Props> = ({ personaje }) => {
     <Show when={isVisible()}>
       <div class="flex flex-col justify-center items-center">
         <a href={`/Personajes/${personaje.name}`}>
-          <img src={imgeSrc} alt={personaje.name} width="96" height="96" />
+          <img
+            src={imgeSrc}
+            alt={personaje.name}
+            width="96"
+            height="96"
+            style={`view-transition-name: ${personaje.name}-image`}
+          />
           <p class="capitalize">
             #{personaje.id} {personaje.name}
           </p>
